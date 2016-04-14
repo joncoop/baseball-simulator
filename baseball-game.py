@@ -193,16 +193,21 @@ questions to answer:
 * does it make a difference to bat pitcher 8th or 9th?
 * optimal 3-4
 * optimal 1-5 order
+* characteristics of leadoff hitter (since it only happens once per game,
+  does it even matter?)
 * bunch best hitters or spread them out?
-* does batting order even matter? test random orders vs lineups
+* does batting order even matter? test random orders vs traditional lineups
 * how much does order matter? (runs per game, wins per season)
 * how many runs equate to a "win" on average? could standings be analyzed to
   determine this?
 * should runners push to advance extra base? if so, when?
 * is stealing worth risk?
+* when is bunting worthwhile?
+* does the dh make the game 'more exciting'? (or perhaps extra runs can be
+  attributed to strategical differences - more conservative base running)
 
 probably can't be included:
 
-* situational decision making
+* situational decision making (bunts, deliberate fly balls in sac situations, etc)
 
 '''
