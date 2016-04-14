@@ -128,18 +128,20 @@ class Game():
         return self.runs
 
 
-#2015 stats("name",      pa, hit, 2b, 3b, hr, bb)
+#2015 stats("name",     pa, hit, 2b, 3b, hr, bb)
 p1 = Player("fowler",  690, 149, 29,  8, 17, 84)
-p2 = Player("heward",  610, 160, 33,  4, 13,  0)
-p3 = Player("rizzo",   701, 163, 38,  3, 31, 78)
-p4 = Player("bryant",  650, 154, 31,  5, 26, 77)
-p5 = Player("zobrist", 264,  66, 16,  1,  7, 29)
+p2 = Player("heyward", 610, 160, 33,  4, 13,  0)
+p3 = Player("zobrist", 264,  66, 16,  1,  7, 29)
+p4 = Player("rizzo",   701, 163, 38,  3, 31, 78)
+p5 = Player("bryant",  650, 154, 31,  5, 26, 77)
 p6 = Player("montero", 403,  86, 11,  0, 15, 49)
 p7 = Player("soler",   404,  96, 18,  1, 10, 32)
 p8 = Player("russell", 523, 115, 29,  1, 13, 42)
 p9 = Player("arietta",  83,  12,  1,  1,  2,  1)
 
 batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
+#batting_order = [p9, p8, p7, p6, p5, p4, p3, p2, p1]
+#batting_order = [p9, p3, p6, p1, p4, p8, p2, p7, p5]
 
 game = Game(batting_order, False)
 
@@ -198,5 +200,9 @@ questions to answer:
   determine this?
 * should runners push to advance extra base? if so, when?
 * is stealing worth risk?
+
+probably can't be included:
+
+* situational decision making
 
 '''
