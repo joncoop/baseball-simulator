@@ -1,57 +1,175 @@
 import random
 
+# options
+trials = 1
+verbose = True
+
+# outcomes
+WALK = 0
+SINGLE = 1
+DOUBLE = 2
+TRIPLE = 3
+HOMER = 4
+OUT = 5
+
+
 class Player():
 
     def __init__(self, name, plate_appearances, hits, doubles, triples, homers, walks):
-        self.name = name
-        self.singles = hits - doubles - triples - homers - walks
-        self.doubles = doubles
-        self.triples = triples
-        self.homers = homers
-        self.walks = walks
-        self.plate_appearances = plate_appearances
-
         
+        singles = hits - doubles - triples - homers - walks
+
+        self.name = name
+        self.walk_prob = walks / plate_appearances
+        self.single_prob = singles / plate_appearances
+        self.double_prob = doubles / plate_appearances
+        self.triple_prob = triples / plate_appearances
+        self.homer_prob = homers / plate_appearances
+
+    def make_plate_appearance(self):
+        r = random.randint(0, 1000) / 1000
+
+        if r < self.walk_prob:
+            return WALK
+        elif r < self.walk_prob + self.single_prob:
+            return SINGLE
+        elif r < self.walk_prob + self.single_prob + self.double_prob:
+            return DOUBLE
+        elif r < self.walk_prob + self.single_prob + self.double_prob + self.triple_prob:
+            return TRIPLE
+        elif r < self.walk_prob + self.single_prob + self.double_prob + self.triple_prob + self.homer_prob:
+            return HOMER
+        else:
+            return OUT
+        
+
 class Game():
 
-    def __init__(self, lineup, verbose = False):
+    def __init__(self, lineup):
 
         self.lineup = lineup
         self.batter = 0
 
-        self.bases = [0, 0, 0]
+        self.bases = [None, None, None, None]
         self.runs = 0
-
-        self.verbose = verbose
         
     def clear_bases(self):
-        self.bases = [0, 0, 0]
+        self.bases = [None, None, None, None]
 
-    def advance_runners(self, num_bases):
+    def advance_runners(self, player, result):
+        self.bases[0] = player
         runs = 0
-        
-        if num_bases == 1:
-            runs += self.bases[2]
-            self.bases[2] = self.bases[1]
-            self.bases[1] = self.bases[0]
-            self.bases[0] = 1
-        elif num_bases == 2:
-            runs += self.bases[1] + self.bases[2]
-            self.bases[2] = self.bases[0]
-            self.bases[1] = 1
-            self.bases[0] = 0
-        elif num_bases == 3:
-            runs += self.bases[0] + self.bases[1] + self.bases[2]
-            self.bases[2] = 1
-            self.bases[1] = 0
-            self.bases[0] = 0
-        elif num_bases >= 4:
-            runs += 1 + self.bases[0] + self.bases[1] + self.bases[2]
-            self.clear_bases()
+        output = ""
 
-        if self.verbose:
-            print("runners advance " + str(num_bases) + " bases. " + str(runs) + " runs scored.")
-            print(self.bases)
+        if result == SINGLE:
+            if self.bases[3] != None:
+                output += self.bases[3].name + " scores.\n"
+                
+                self.bases[3] = None
+                runs += 1
+                
+            if self.bases[2] != None:
+                output += self.bases[2].name + " advances to third.\n"
+                
+                self.bases[3] = self.bases[2]
+                self.bases[2] = None
+
+            if self.bases[1] != None:
+                output = self.bases[1].name + " advances to second.\n"
+                self.bases[2] = self.bases[1]
+                self.bases[1] = None
+
+            self.bases[1] = self.bases[0]
+            
+        elif result == DOUBLE:
+            if self.bases[3] != None:
+                output += self.bases[3].name + " scores.\n"
+                
+                self.bases[3] = None
+                runs += 1
+                
+            if self.bases[2] != None:
+                output += self.bases[2].name + " scores.\n"
+                
+                self.bases[2] = None
+                runs += 1
+
+            if self.bases[1] != None:
+                output = self.bases[1].name + " advances to third.\n"
+                self.bases[3] = self.bases[1]
+                self.bases[1] = None
+
+            self.bases[2] = self.bases[0]
+            
+        elif result == TRIPLE:
+            if self.bases[3] != None:
+                output += self.bases[3].name + " scores.\n"
+                
+                self.bases[3] = None
+                runs += 1
+                
+            if self.bases[2] != None:
+                output += self.bases[2].name + " scores.\n"
+                
+                self.bases[2] = None
+                runs += 1
+
+            if self.bases[1] != None:
+                output += self.bases[1].name + " scores.\n"
+                
+                self.bases[2] = None
+                runs += 1
+
+            self.bases[3] = self.bases[0]
+
+        elif result == HOMER:
+            if self.bases[3] != None:
+                output += self.bases[3].name + " scores.\n"
+                
+                self.bases[3] = None
+                runs += 1
+                
+            if self.bases[2] != None:
+                output += self.bases[2].name + " scores.\n"
+                
+                self.bases[2] = None
+                runs += 1
+
+            if self.bases[1] != None:
+                output += self.bases[1].name + " scores.\n"
+                
+                self.bases[2] = None
+                runs += 1
+
+            output += self.bases[0].name + " scores.\n"
+            self.bases[0] = None
+            runs += 1
+            
+        elif result == WALK:
+            if self.bases[3] != None and self.bases[2] != None and self.bases[1] != None:
+                output += self.bases[3].name + " scores.\n"
+                
+                self.bases[3] = None
+                runs += 1
+                
+            if self.bases[2] != None and self.bases[1] != None:
+                output += self.bases[2].name + " advances to third.\n"
+                
+                self.bases[3] = self.bases[2]
+                self.bases[2] = None
+
+            if self.bases[1] != None:
+                output = self.bases[1].name + " advances to second.\n"
+                self.bases[2] = self.bases[1]
+                self.bases[1] = None
+
+            self.bases[1] = self.bases[0]
+        
+        elif result == OUT:
+            pass
+        
+        if verbose:
+            print(output)
         
         return runs
     
@@ -62,51 +180,30 @@ class Game():
         while outs < 3:
             current_hitter = self.lineup[self.batter]
             
-            single_prob = current_hitter.singles / current_hitter.plate_appearances
+            outcome = current_hitter.make_plate_appearance()
             
-            double_prob = current_hitter.doubles / current_hitter.plate_appearances
-            double_prob += single_prob
-            
-            triple_prob = current_hitter.triples / current_hitter.plate_appearances
-            triple_prob += double_prob
-            
-            homer_prob = current_hitter.homers / current_hitter.plate_appearances
-            homer_prob += triple_prob
-            
-            walk_prob = current_hitter.walks / current_hitter.plate_appearances
-            walk_prob += homer_prob
-            
-            r = random.randint(0, 1000) / 1000
-
-            if r < single_prob:
-                outcome = current_hitter.name + " singled."
-                bases_to_advance = 1
-            elif r < double_prob:
-                outcome = current_hitter.name + " doubled."
-                bases_to_advance = 2
-            elif r < triple_prob:
-                outcome = current_hitter.name + " tripled."
-                bases_to_advance = 3
-            elif r < homer_prob:
-                outcome = current_hitter.name + " homered."
-                bases_to_advance = 4
-            elif r < walk_prob:
-                outcome = current_hitter.name + " walked."
-                bases_to_advance = 1
-            else:
-                outcome = current_hitter.name + " is out."
+            if outcome == SINGLE:
+                output = current_hitter.name + " singled."
+            elif outcome == DOUBLE:
+                output = current_hitter.name + " doubled."
+            elif outcome == TRIPLE:
+                output = current_hitter.name + " tripled."
+            elif outcome == HOMER:
+                output = current_hitter.name + " homered."
+            elif outcome == WALK:
+                output = current_hitter.name + " walked."
+            elif outcome == OUT:
+                output = current_hitter.name + " is out."
                 outs += 1
-                bases_to_advance = 0
 
-            if bases_to_advance > 0:                    
-                runs += self.advance_runners(bases_to_advance)
+            if verbose:
+                print(output)
 
-            if self.verbose:
-                print(outcome)
+            runs += self.advance_runners(current_hitter, outcome)
                 
             self.batter = (self.batter + 1) % 9
 
-        if self.verbose:
+        if verbose:
             print("end of inning. " + str(runs) + " runs scored.")
             print()
             
@@ -117,12 +214,12 @@ class Game():
         self.runs = 0
         
         for i in range(1, 10):
-            if self.verbose:
+            if verbose:
                 print("begin inning " + str(i))
                 
             self.play_inning()
 
-        if self.verbose:
+        if verbose:
             print("end of game. " + str(self.runs) + " runs scored.")
 
         return self.runs
@@ -142,11 +239,11 @@ p9 = Player("arietta",  83,  12,  1,  1,  2,  1)
 batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 #batting_order = [p9, p8, p7, p6, p5, p4, p3, p2, p1]
 #batting_order = [p9, p3, p6, p1, p4, p8, p2, p7, p5]
+#batting_order = [p4, p5, p2, p1, p3, p6, p8, p7, p9]
 
-game = Game(batting_order, False)
+game = Game(batting_order)
 
 total_runs = 0
-trials = 10000
 
 for i in range(trials):
     total_runs += game.simulate()
@@ -165,7 +262,6 @@ assumptions:
 problems:
 
 * scoring is too low
-* runners should only advance on walk with force
 * sometimes runners should advance on out
     - sac flies
     - ground balls
