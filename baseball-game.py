@@ -1,14 +1,15 @@
 import random
 
 # options
-trials = 10000
-verbose = False
+trials = 1
+verbose = True
 
 # outcomes
 WALK = 0
 SINGLE = 1
 DOUBLE = 2
 TRIPLE = 3
+
 HOMER = 4
 OUT = 5
 
@@ -57,6 +58,9 @@ class Game():
     def clear_bases(self):
         self.bases = [None, None, None, None]
 
+    def show_bases(self):
+        pass
+    
     def advance_runners(self, result):
         runs = 0
         output = ""
@@ -85,7 +89,7 @@ class Game():
                 r = random.randint(0, 100)
 
                 if r < 15 and self.bases[3] != None:
-                    output = self.bases[1].name + " advances to second. "
+                    output = self.bases[1].name + " advances to third. "
                     self.bases[3] = self.bases[1]
                 else:
                     output = self.bases[1].name + " advances to second. "
