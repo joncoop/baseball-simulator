@@ -320,29 +320,18 @@ print("avg runs: " + str(avg))
 
 problems:
 
-* scoring is too low
-* sometimes runners should advance on out
-    - sac flies
-    - ground balls
+* scoring is too low (but only about 0.5 runs per game now)
 * runners don't ever get called out when taking extra base
-* runners don't replace each other on force outs
+* no awareness of lead runner on ground ball
+* runners don't replace each other on ground ball force outs
 
 missing features:
 
-* runners should advance additional base with two outs
- (or at least increase aggressiveness)
-* detect fly balls and ground balls, strike outs
-    - sac flies score runner from third
-    - advance on some grounders
-    - advance from 1st or second on some fly balls
-    - some ground balls cause double plays
-    - no advance on K
-
+* should runners advance additional base with two outs
+  (or at least increase aggressiveness)
 * speed factor
 * stolen bases
-
-(the current simulation only predicts about half of runs actually scored.
- it's surprising how many runs these missing features actually account for.)
+* bunts
 
 questions to answer:
 
@@ -356,14 +345,14 @@ questions to answer:
 * how much does order matter? (runs per game, wins per season)
 * how many runs equate to a "win" on average? could standings be analyzed to
   determine this?
-* should runners push to advance extra base? if so, when?
-* is stealing worth risk?
-* when is bunting worthwhile?
 * does the dh make the game 'more exciting'? (or perhaps extra runs can be
   attributed to strategical differences - more conservative base running)
 
-probably can't be included:
+situational decision making:
 
-* situational decision making (bunts, deliberate fly balls in sac situations, etc)
+* can code be reconfigured to test scenarios?
+    - should runners push to advance extra base? if so, when?
+    - when to steal
+    - sacrafice bunts... worth it?
 
 '''
