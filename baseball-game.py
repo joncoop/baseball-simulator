@@ -260,6 +260,7 @@ batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 #batting_order = [p9, p3, p6, p1, p4, p8, p2, p7, p5]
 #batting_order = [p4, p5, p2, p1, p3, p6, p8, p7, p9]
 #batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
+#batting_order = [p2, p1, p3, p4, p5, dh, p6, p7, p8]
 
 game = Game(batting_order)
 
