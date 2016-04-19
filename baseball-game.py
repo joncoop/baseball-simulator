@@ -82,8 +82,15 @@ class Game():
                 self.bases[2] = None
 
             if self.bases[1] != None:
-                output = self.bases[1].name + " advances to second. "
-                self.bases[2] = self.bases[1]
+                r = random.randint(0, 100)
+
+                if r < 15 and self.bases[3] != None:
+                    output = self.bases[1].name + " advances to second. "
+                    self.bases[3] = self.bases[1]
+                else:
+                    output = self.bases[1].name + " advances to second. "
+                    self.bases[2] = self.bases[1]
+                
                 self.bases[1] = None
 
             self.bases[1] = self.bases[0]
