@@ -1,8 +1,8 @@
 import random
 
 # options
-trials = 1
-verbose = True
+trials = 10000
+verbose = False
 
 # outcomes
 WALK = 0
@@ -56,7 +56,7 @@ class Game():
     def clear_bases(self):
         self.bases = [None, None, None, None]
 
-    def advance_runners(self, player, result):
+    def advance_runners(self, player, result, outs):
         self.bases[0] = player
         runs = 0
         output = ""
@@ -69,9 +69,15 @@ class Game():
                 runs += 1
                 
             if self.bases[2] != None:
-                output += self.bases[2].name + " advances to third.\n"
+                r = random.randint(0, 100)
+
+                if r < 60:
+                    output += self.bases[2].name + " scores.\n"
+                    runs += 1
+                else:
+                    output += self.bases[2].name + " advances to third.\n"
+                    self.bases[3] = self.bases[2]
                 
-                self.bases[3] = self.bases[2]
                 self.bases[2] = None
 
             if self.bases[1] != None:
@@ -95,9 +101,19 @@ class Game():
                 runs += 1
 
             if self.bases[1] != None:
-                output = self.bases[1].name + " advances to third.\n"
-                self.bases[3] = self.bases[1]
-                self.bases[1] = None
+
+                r = random.randint(0, 100)
+
+                if r < 40:
+                    output += self.bases[1].name + " scores.\n"
+                                    
+                    self.bases[1] = None
+                    runs += 1
+                else:
+                    output = self.bases[1].name + " advances to third.\n"
+                    
+                    self.bases[3] = self.bases[1]
+                    self.bases[1] = None
 
             self.bases[2] = self.bases[0]
             
@@ -166,8 +182,15 @@ class Game():
             self.bases[1] = self.bases[0]
         
         elif result == OUT:
-            pass
-        
+            if self.bases[3] != None and outs < 2:
+                r = random.randint(0, 100)
+
+                if r < 40:
+                    output += self.bases[3].name + " scores on sac fly.\n"
+                    
+                    self.bases[3] = None
+                    runs += 1
+            
         if verbose:
             print(output)
         
@@ -199,7 +222,7 @@ class Game():
             if verbose:
                 print(output)
 
-            runs += self.advance_runners(current_hitter, outcome)
+            runs += self.advance_runners(current_hitter, outcome, outs)
                 
             self.batter = (self.batter + 1) % 9
 
@@ -255,9 +278,6 @@ print("avg runs: " + str(avg))
 
 
 '''
-assumptions:
-
-* runners advance same number of bases as hit
 
 problems:
 
@@ -265,17 +285,17 @@ problems:
 * sometimes runners should advance on out
     - sac flies
     - ground balls
+* runners don't ever get called out when taking extra base
+
     
 missing features:
 
 * runners should advance additional base with two outs
-* score runner from 2nd on single, or make probability based
-  (speed included in probability)
-* advance runner from first to third on single, probability based
 * detect fly balls and ground balls, strike outs
     - sac flies score runner from third
     - advance on some grounders
-    - ground balls cause double plays
+    - advance from 1st or second on some fly balls
+    - some ground balls cause double plays
     - no advance on K
 
 * speed factor
