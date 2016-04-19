@@ -191,18 +191,57 @@ class Game():
             self.bases[1] = self.bases[0]
         
         elif result == OUT:
-            output += self.bases[0].name + " got out. "
-
-            if self.bases[3] != None and self.outs < 2:
-                r = random.randint(0, 100)
-
-                if r < 40:
-                    output += self.bases[3].name + " scores on sac fly. "
-                    self.bases[3] = None
-                    runs += 1
-
-            self.outs += 1
+            r1 = random.randint(0, 100)
+            r2 = random.randint(0, 100)
             
+            if r1 < 35:
+                #ground ball
+                if r2 < 60 and self.bases[1] != None and self.outs < 2:
+                    output += self.bases[0].name + " grounded into a double play."
+                    self.bases[1] = None
+                    self.outs += 2
+                elif r2 < 95:
+                    output += self.bases[0].name + " grounded out."
+                    self.outs += 1
+                else:
+                    output += self.bases[0].name + " grounded out."
+                    self.outs += 1
+
+                    if self.outs < 3:
+                        if self.bases[1] != None:
+                            output += self.bases[1].name + " advances to second. "
+                            self.bases[2] = self.bases[1]
+                            self.bases[1] = None
+                            
+                        if self.bases[2] != None:
+                            output += self.bases[2].name + " advances to third. "
+                            self.bases[3] = self.bases[2]
+                            self.bases[2] = None
+                            
+                        if self.bases[2] != None:
+                            output += self.bases[3].name + " scored. "
+                            self.bases[3] = None
+                            runs += 1 
+            elif r1 < 70:
+                # fly ball
+                output += self.bases[0].name + " flied out."
+
+                if self.outs < 2:
+                    if self.bases[3] != None and r2 < 80:
+                        output += self.bases[3].name + " scores on sac fly. "
+                        self.bases[3] = None
+                        runs += 1
+                    if self.bases[2] != None and r2 < 30:
+                        output += self.bases[2].name + " advanced to third. "
+                        self.bases[3] = self.bases[2]
+                        self.bases[2] = None
+
+                self.outs += 1
+            else:
+                # strike out
+                output += self.bases[0].name + " struck out."
+                self.outs += 1
+                
         if verbose:
             print(output)
         
@@ -255,13 +294,13 @@ p8 = Player("russell",   523, 115, 29,  1, 13, 42)
 p9 = Player("arietta",    83,  12,  1,  1,  2,  1)
 dh = Player("schwarber", 273,  57,  6,  1, 16, 36)
             
-#batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
+batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 #batting_order = [p9, p8, p7, p6, p5, p4, p3, p2, p1]
 #batting_order = [p9, p3, p6, p1, p4, p8, p2, p7, p5]
 #batting_order = [p4, p5, p2, p1, p3, p6, p8, p7, p9]
 
 # communist DH used
-batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
+#batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
 #batting_order = [p2, p1, p3, p4, p5, dh, p6, p7, p8]
 
 game = Game(batting_order)
@@ -286,11 +325,12 @@ problems:
     - sac flies
     - ground balls
 * runners don't ever get called out when taking extra base
+* runners don't replace each other on force outs
 
-    
 missing features:
 
 * runners should advance additional base with two outs
+ (or at least increase aggressiveness)
 * detect fly balls and ground balls, strike outs
     - sac flies score runner from third
     - advance on some grounders
