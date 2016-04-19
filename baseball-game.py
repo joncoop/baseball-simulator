@@ -89,10 +89,10 @@ class Game():
                 r = random.randint(0, 100)
 
                 if r < 15 and self.bases[3] != None:
-                    output = self.bases[1].name + " advances to third. "
+                    output += self.bases[1].name + " advances to third. "
                     self.bases[3] = self.bases[1]
                 else:
-                    output = self.bases[1].name + " advances to second. "
+                    output += self.bases[1].name + " advances to second. "
                     self.bases[2] = self.bases[1]
                 
                 self.bases[1] = None
@@ -145,7 +145,7 @@ class Game():
             if self.bases[1] != None:
                 output += self.bases[1].name + " scores. "
                 
-                self.bases[2] = None
+                self.bases[1] = None
                 runs += 1
 
             self.bases[3] = self.bases[0]
@@ -184,7 +184,7 @@ class Game():
                 self.bases[2] = None
 
             if self.bases[1] != None:
-                output = self.bases[1].name + " advances to second. "
+                output += self.bases[1].name + " advances to second. "
                 self.bases[2] = self.bases[1]
                 self.bases[1] = None
 
