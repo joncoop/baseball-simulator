@@ -1,8 +1,8 @@
 import random
 
 # options
-trials = 1
-verbose = True
+trials = 10000
+verbose = False
 
 # outcomes
 WALK = 0
@@ -17,7 +17,7 @@ class Player():
 
     def __init__(self, name, plate_appearances, hits, doubles, triples, homers, walks):
         
-        singles = hits - doubles - triples - homers - walks
+        singles = hits - doubles - triples - homers
 
         self.name = name
         self.walk_prob = walks / plate_appearances
@@ -51,12 +51,13 @@ class Game():
         self.batter = 0
 
         self.bases = [None, None, None, None]
+        self.outs = 0
         self.runs = 0
         
     def clear_bases(self):
         self.bases = [None, None, None, None]
 
-    def advance_runners(self, result, outs):
+    def advance_runners(self, result):
         runs = 0
         output = ""
 
@@ -181,13 +182,15 @@ class Game():
         elif result == OUT:
             output += self.bases[0].name + " got out. "
 
-            if self.bases[3] != None and outs < 2:
+            if self.bases[3] != None and self.outs < 2:
                 r = random.randint(0, 100)
 
                 if r < 40:
                     output += self.bases[3].name + " scores on sac fly. "
                     self.bases[3] = None
                     runs += 1
+
+            self.outs += 1
             
         if verbose:
             print(output)
@@ -195,26 +198,23 @@ class Game():
         return runs
     
     def play_inning(self):
-        outs = 0
-        runs = 0
+        self.outs = 0
+        runs_this_inning = 0
         
-        while outs < 3:
+        while self.outs < 3:
             self.bases[0] = self.lineup[self.batter]
             
             outcome = self.bases[0].make_plate_appearance()
-            
-            if outcome == OUT:
-                outs += 1
 
-            runs += self.advance_runners(outcome, outs)
+            runs_this_inning += self.advance_runners(outcome)
                 
             self.batter = (self.batter + 1) % 9
 
         if verbose:
-            print("end of inning. " + str(runs) + " runs scored.")
+            print("end of inning. " + str(runs_this_inning) + " runs scored.")
             print()
             
-        self.runs += runs
+        self.runs += runs_this_inning
         self.clear_bases()
         
     def simulate(self):
