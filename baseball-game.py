@@ -143,38 +143,31 @@ class Game():
 
             if self.bases[3] != None:
                 output += self.bases[3].name + " scores. "
-                
-                self.bases[3] = None
                 runs += 1
                 
             if self.bases[2] != None:
                 output += self.bases[2].name + " scores. "
-                
-                self.bases[2] = None
                 runs += 1
 
             if self.bases[1] != None:
                 output += self.bases[1].name + " scores. "
-                
-                self.bases[2] = None
                 runs += 1
 
             output += self.bases[0].name + " scores. "
-            self.bases[0] = None
             runs += 1
+
+            self.clear_bases()
             
         elif result == WALK:
             output += self.bases[0].name + " walked. "
 
             if self.bases[3] != None and self.bases[2] != None and self.bases[1] != None:
                 output += self.bases[3].name + " scores. "
-                
                 self.bases[3] = None
                 runs += 1
                 
             if self.bases[2] != None and self.bases[1] != None:
                 output += self.bases[2].name + " advances to third. "
-                
                 self.bases[3] = self.bases[2]
                 self.bases[2] = None
 
@@ -193,7 +186,6 @@ class Game():
 
                 if r < 40:
                     output += self.bases[3].name + " scores on sac fly. "
-                    
                     self.bases[3] = None
                     runs += 1
             
