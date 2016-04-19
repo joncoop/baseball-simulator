@@ -1,8 +1,8 @@
 import random
 
 # options
-trials = 1
-verbose = True
+trials = 10000
+verbose = False
 
 # outcomes
 WALK = 0
@@ -255,11 +255,11 @@ p8 = Player("russell",   523, 115, 29,  1, 13, 42)
 p9 = Player("arietta",    83,  12,  1,  1,  2,  1)
 dh = Player("schwarber", 273,  57,  6,  1, 16, 36)
             
-batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
+#batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 #batting_order = [p9, p8, p7, p6, p5, p4, p3, p2, p1]
 #batting_order = [p9, p3, p6, p1, p4, p8, p2, p7, p5]
 #batting_order = [p4, p5, p2, p1, p3, p6, p8, p7, p9]
-#batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
+batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
 
 game = Game(batting_order)
 
