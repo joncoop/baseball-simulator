@@ -1,8 +1,8 @@
 import random
 
 # options
-trials = 10000
-verbose = False
+trials = 1
+verbose = True
 
 # outcomes
 WALK = 0
@@ -56,15 +56,15 @@ class Game():
     def clear_bases(self):
         self.bases = [None, None, None, None]
 
-    def advance_runners(self, player, result, outs):
-        self.bases[0] = player
+    def advance_runners(self, result, outs):
         runs = 0
         output = ""
 
         if result == SINGLE:
+            output += self.bases[0].name + " singled. "
+            
             if self.bases[3] != None:
-                output += self.bases[3].name + " scores.\n"
-                
+                output += self.bases[3].name + " scores. "
                 self.bases[3] = None
                 runs += 1
                 
@@ -72,31 +72,31 @@ class Game():
                 r = random.randint(0, 100)
 
                 if r < 60:
-                    output += self.bases[2].name + " scores.\n"
+                    output += self.bases[2].name + " scores. "
                     runs += 1
                 else:
-                    output += self.bases[2].name + " advances to third.\n"
+                    output += self.bases[2].name + " advances to third. "
                     self.bases[3] = self.bases[2]
                 
                 self.bases[2] = None
 
             if self.bases[1] != None:
-                output = self.bases[1].name + " advances to second.\n"
+                output = self.bases[1].name + " advances to second. "
                 self.bases[2] = self.bases[1]
                 self.bases[1] = None
 
             self.bases[1] = self.bases[0]
             
         elif result == DOUBLE:
+            output += self.bases[0].name + " doubled. "
+
             if self.bases[3] != None:
-                output += self.bases[3].name + " scores.\n"
-                
+                output += self.bases[3].name + " scores. "
                 self.bases[3] = None
                 runs += 1
                 
             if self.bases[2] != None:
-                output += self.bases[2].name + " scores.\n"
-                
+                output += self.bases[2].name + " scores. "
                 self.bases[2] = None
                 runs += 1
 
@@ -105,33 +105,33 @@ class Game():
                 r = random.randint(0, 100)
 
                 if r < 40:
-                    output += self.bases[1].name + " scores.\n"
-                                    
-                    self.bases[1] = None
+                    output += self.bases[1].name + " scores. "
                     runs += 1
                 else:
-                    output = self.bases[1].name + " advances to third.\n"
-                    
+                    output = self.bases[1].name + " advances to third. "
                     self.bases[3] = self.bases[1]
-                    self.bases[1] = None
+
+                self.bases[1] = None
 
             self.bases[2] = self.bases[0]
             
         elif result == TRIPLE:
+            output += self.bases[0].name + " tripled. "
+
             if self.bases[3] != None:
-                output += self.bases[3].name + " scores.\n"
+                output += self.bases[3].name + " scores. "
                 
                 self.bases[3] = None
                 runs += 1
                 
             if self.bases[2] != None:
-                output += self.bases[2].name + " scores.\n"
+                output += self.bases[2].name + " scores. "
                 
                 self.bases[2] = None
                 runs += 1
 
             if self.bases[1] != None:
-                output += self.bases[1].name + " scores.\n"
+                output += self.bases[1].name + " scores. "
                 
                 self.bases[2] = None
                 runs += 1
@@ -139,54 +139,60 @@ class Game():
             self.bases[3] = self.bases[0]
 
         elif result == HOMER:
+            output += self.bases[0].name + " homered. "
+
             if self.bases[3] != None:
-                output += self.bases[3].name + " scores.\n"
+                output += self.bases[3].name + " scores. "
                 
                 self.bases[3] = None
                 runs += 1
                 
             if self.bases[2] != None:
-                output += self.bases[2].name + " scores.\n"
+                output += self.bases[2].name + " scores. "
                 
                 self.bases[2] = None
                 runs += 1
 
             if self.bases[1] != None:
-                output += self.bases[1].name + " scores.\n"
+                output += self.bases[1].name + " scores. "
                 
                 self.bases[2] = None
                 runs += 1
 
-            output += self.bases[0].name + " scores.\n"
+            output += self.bases[0].name + " scores. "
             self.bases[0] = None
             runs += 1
             
         elif result == WALK:
+            output += self.bases[0].name + " walked. "
+
             if self.bases[3] != None and self.bases[2] != None and self.bases[1] != None:
-                output += self.bases[3].name + " scores.\n"
+                output += self.bases[3].name + " scores. "
                 
                 self.bases[3] = None
                 runs += 1
                 
             if self.bases[2] != None and self.bases[1] != None:
-                output += self.bases[2].name + " advances to third.\n"
+                output += self.bases[2].name + " advances to third. "
                 
                 self.bases[3] = self.bases[2]
                 self.bases[2] = None
 
             if self.bases[1] != None:
-                output = self.bases[1].name + " advances to second.\n"
+                output = self.bases[1].name + " advances to second. "
                 self.bases[2] = self.bases[1]
                 self.bases[1] = None
 
             self.bases[1] = self.bases[0]
         
         elif result == OUT:
+            output += self.bases[0].name + " got out. "
+
             if self.bases[3] != None and outs < 2:
                 r = random.randint(0, 100)
 
                 if r < 40:
-                    output += self.bases[3].name + " scores on sac fly.\n"
+                    output += self.bases[3].name + " scores on sac fly. "
                     
                     self.bases[3] = None
                     runs += 1
@@ -201,28 +207,14 @@ class Game():
         runs = 0
         
         while outs < 3:
-            current_hitter = self.lineup[self.batter]
+            self.bases[0] = self.lineup[self.batter]
             
-            outcome = current_hitter.make_plate_appearance()
+            outcome = self.bases[0].make_plate_appearance()
             
-            if outcome == SINGLE:
-                output = current_hitter.name + " singled."
-            elif outcome == DOUBLE:
-                output = current_hitter.name + " doubled."
-            elif outcome == TRIPLE:
-                output = current_hitter.name + " tripled."
-            elif outcome == HOMER:
-                output = current_hitter.name + " homered."
-            elif outcome == WALK:
-                output = current_hitter.name + " walked."
-            elif outcome == OUT:
-                output = current_hitter.name + " is out."
+            if outcome == OUT:
                 outs += 1
 
-            if verbose:
-                print(output)
-
-            runs += self.advance_runners(current_hitter, outcome, outs)
+            runs += self.advance_runners(outcome, outs)
                 
             self.batter = (self.batter + 1) % 9
 
@@ -260,11 +252,11 @@ p8 = Player("russell",   523, 115, 29,  1, 13, 42)
 p9 = Player("arietta",    83,  12,  1,  1,  2,  1)
 dh = Player("schwarber", 273,  57,  6,  1, 16, 36)
             
-#batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
+batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 #batting_order = [p9, p8, p7, p6, p5, p4, p3, p2, p1]
 #batting_order = [p9, p3, p6, p1, p4, p8, p2, p7, p5]
 #batting_order = [p4, p5, p2, p1, p3, p6, p8, p7, p9]
-batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
+#batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
 
 game = Game(batting_order)
 
