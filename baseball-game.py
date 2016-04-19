@@ -9,10 +9,8 @@ WALK = 0
 SINGLE = 1
 DOUBLE = 2
 TRIPLE = 3
-
 HOMER = 4
 OUT = 5
-
 
 class Player():
 
@@ -43,7 +41,6 @@ class Player():
         else:
             return OUT
         
-
 class Game():
 
     def __init__(self, lineup):
@@ -282,6 +279,7 @@ class Game():
         return self.runs
 
 
+
 #2015 stats("name",       pa, hit, 2b, 3b, hr, bb)
 p1 = Player("fowler",    690, 149, 29,  8, 17, 84)
 p2 = Player("heyward",   610, 160, 33,  4, 13,  0)
@@ -302,7 +300,6 @@ batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 # communist DH used
 #batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
 #batting_order = [p2, p1, p3, p4, p5, dh, p6, p7, p8]
-
 game = Game(batting_order)
 
 total_runs = 0
