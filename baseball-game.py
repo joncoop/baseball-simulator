@@ -1,7 +1,8 @@
 import random
+import statistics
 
 # options
-trials = 10000
+trials = 162
 verbose = False
 
 # outcomes
@@ -302,16 +303,27 @@ batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 #batting_order = [p2, p1, p3, p4, p5, dh, p6, p7, p8]
 game = Game(batting_order)
 
-total_runs = 0
+runs_scored = []
 
 for i in range(trials):
-    total_runs += game.simulate()
+    runs = game.simulate()
+    runs_scored.append(runs)
 
-avg = total_runs / trials
+low = min(runs_scored)
+high = max(runs_scored)
 
-print("num games: " + str(trials))
-print("avg runs: " + str(avg))
+mean = statistics.mean(runs_scored)
+median = statistics.median(runs_scored)
+mode = statistics.mode(runs_scored)
+stdev = statistics.stdev(runs_scored)
 
+print("num games: {}".format(trials))
+print("min: {}".format(low))
+print("max: {}".format(high))
+print("mean: {}".format(mean))
+print("median: {}".format(median))
+print("mode: {}".format(mode))
+print("standard deviation: {}".format(stdev))
 
 '''
 
