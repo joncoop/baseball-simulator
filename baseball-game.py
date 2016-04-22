@@ -44,14 +44,19 @@ class Player():
         
 class Game():
 
-    def __init__(self, lineup):
+    def __init__(self, lineup, opponent_lineup):
 
         self.lineup = lineup
         self.batter = 0
-
+        
         self.bases = [None, None, None, None]
         self.outs = 0
         self.runs = 0
+
+        
+        self.opponent_lineup = opponent_lineup
+        self.opponent_runs = 0
+        self.opponent_batter = 0
         
     def clear_bases(self):
         self.bases = [None, None, None, None]
@@ -246,38 +251,77 @@ class Game():
         return runs
     
     def play_inning(self):
+        #top half
         self.outs = 0
-        runs_this_inning = 0
-        
+        runs_this_half_inning = 0
+
+        if verbose:
+            print("Cubs:")
+            
         while self.outs < 3:
             self.bases[0] = self.lineup[self.batter]
             
             outcome = self.bases[0].make_plate_appearance()
 
-            runs_this_inning += self.advance_runners(outcome)
+            runs_this_half_inning += self.advance_runners(outcome)
                 
             self.batter = (self.batter + 1) % 9
 
         if verbose:
-            print("end of inning. " + str(runs_this_inning) + " runs scored.")
+            print("end of half inning. " + str(runs_this_half_inning) + " runs scored.")
             print()
             
-        self.runs += runs_this_inning
+        self.runs += runs_this_half_inning
         self.clear_bases()
+
+        #bottom half
+        self.outs = 0
+        runs_this_half_inning = 0
+
+        if verbose:
+            print("Opponent:")
+            
+        while self.outs < 3:
+            self.bases[0] = self.opponent_lineup[self.opponent_batter]
+            
+            outcome = self.bases[0].make_plate_appearance()
+
+            runs_this_half_inning += self.advance_runners(outcome)
+                
+            self.opponent_batter = (self.opponent_batter + 1) % 9
+
+        self.opponent_runs += runs_this_half_inning
+        self.clear_bases()
+        
+        if verbose:
+            print("end of inning. " + str(runs_this_half_inning) + " runs scored.  (" + str(self.runs) + "," + str(self.opponent_runs) + ")")
+            print()
         
     def simulate(self):
         self.runs = 0
-        
+        self.opponent_runs = 0
+
         for i in range(1, 10):
             if verbose:
                 print("begin inning " + str(i))
                 
             self.play_inning()
 
+        while self.runs == self.opponent_runs:
+            self.play_inning()
+            
         if verbose:
-            print("end of game. " + str(self.runs) + " runs scored.")
+            print("end of game. The cubs scored " + str(self.runs) + " runs.")
+            print("Their opponent scored " + str(self.opponent_runs) + " runs.")
 
-        return self.runs
+        if self.runs > self.opponent_runs:
+            winner = "cubs"
+        elif self.opponent_runs > self.runs:
+            winner = "opponent"
+        else:
+            winner = "tie"
+        
+        return self.runs, self.opponent_runs, winner
 
 
 #cubs stats
@@ -301,35 +345,47 @@ batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 # communist DH used
 #batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
 #batting_order = [p2, p1, p3, p4, p5, dh, p6, p7, p8]
-game = Game(batting_order)
-
-total_runs = 0
 
 #opponent stats
 #Brewers
 #2015 stats("name",       pa, hit, 2b, 3b, hr, bb)
-p1 = Player("santana",    145,  28,  5,  0,  6, 18)
-p2 = Player("gennett",    391,  99, 18,  4,  6, 12)
-p3 = Player("braun",      568, 144, 27,  3, 25, 54)
-p4 = Player("lucroy",     415,  98, 20,  3,  7, 36)
-p5 = Player("carter",     129,  78, 17,  0, 24, 57)
-p6 = Player("hill",       353,  72, 18,  0,  6, 31)
-p7 = Player("gennett",    391,  99,  3,  0,  3,  9)
-p8 = Player("flores",      33,   7,  1,  0,  0,  0)
-p9 = Player("villar",     128,  33,  7,  1,  2, 10)
+brewers_p1 = Player("santana",    145,  28,  5,  0,  6, 18)
+brewers_p2 = Player("gennett",    391,  99, 18,  4,  6, 12)
+brewers_p3 = Player("braun",      568, 144, 27,  3, 25, 54)
+brewers_p4 = Player("lucroy",     415,  98, 20,  3,  7, 36)
+brewers_p5 = Player("carter",     129,  78, 17,  0, 24, 57)
+brewers_p6 = Player("hill",       353,  72, 18,  0,  6, 31)
+brewers_p7 = Player("gennett",    391,  99,  3,  0,  3,  9)
+brewers_p8 = Player("flores",      33,   7,  1,  0,  0,  0)
+brewers_p9 = Player("villar",     128,  33,  7,  1,  2, 10)
             
-batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
+brewers_batting_order = [brewers_p1, brewers_p2, brewers_p3, brewers_p4, brewers_p5, brewers_p6, brewers_p7, brewers_p8, brewers_p9]
 
+opponent = brewers_batting_order
+
+
+game = Game(batting_order,brewers_batting_order)
+
+total_runs = 0
+
+winners = []
+runs = []
+opp_runs = []
 
 for i in range(trials):
-    total_runs += game.simulate()
-
-avg = total_runs / trials
+    results = game.simulate()
+    runs.append(results[0])
+    opp_runs.append(results[1])
+    winners.append(results[2])
+ 
+avg = sum(runs) / trials
+opp_avg = sum(opp_runs) / trials
 
 print("num games: " + str(trials))
-print("avg runs: " + str(avg))
-
-
+print("avg cubs runs: " + str(avg))
+print("avg opp runs: " + str(opp_avg))
+print("the cubs won " + str(winners.count("cubs")) + " times. " + str(100 * winners.count("cubs")/trials) + "%")
+print("their opponent won " + str(winners.count("opponent")) + " times. " + str(100 * winners.count("opponent")/trials) + "%")
 '''
 
 problems:
