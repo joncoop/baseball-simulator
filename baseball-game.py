@@ -7,7 +7,6 @@ trials = 162
 verbose = False
 vary_pitching = True
 
-
 # outcomes
 WALK = 0
 SINGLE = 1
@@ -67,7 +66,6 @@ class Game():
         self.opponent_batter = 0
 
         self.offset = random.randint(0,9)
-
         
     def clear_bases(self):
         self.bases = [None, None, None, None]
