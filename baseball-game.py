@@ -1,18 +1,16 @@
 import random
 
 # options
-trials = 1
-verbose = True
+trials = 10000
+verbose = False
 
 # outcomes
 WALK = 0
 SINGLE = 1
 DOUBLE = 2
 TRIPLE = 3
-
 HOMER = 4
 OUT = 5
-
 
 class Player():
 
@@ -43,7 +41,6 @@ class Player():
         else:
             return OUT
         
-
 class Game():
 
     def __init__(self, lineup):
@@ -191,18 +188,57 @@ class Game():
             self.bases[1] = self.bases[0]
         
         elif result == OUT:
-            output += self.bases[0].name + " got out. "
-
-            if self.bases[3] != None and self.outs < 2:
-                r = random.randint(0, 100)
-
-                if r < 40:
-                    output += self.bases[3].name + " scores on sac fly. "
-                    self.bases[3] = None
-                    runs += 1
-
-            self.outs += 1
+            r1 = random.randint(0, 100)
+            r2 = random.randint(0, 100)
             
+            if r1 < 35:
+                #ground ball
+                if r2 < 60 and self.bases[1] != None and self.outs < 2:
+                    output += self.bases[0].name + " grounded into a double play."
+                    self.bases[1] = None
+                    self.outs += 2
+                elif r2 < 95:
+                    output += self.bases[0].name + " grounded out."
+                    self.outs += 1
+                else:
+                    output += self.bases[0].name + " grounded out."
+                    self.outs += 1
+
+                    if self.outs < 3:
+                        if self.bases[1] != None:
+                            output += self.bases[1].name + " advances to second. "
+                            self.bases[2] = self.bases[1]
+                            self.bases[1] = None
+                            
+                        if self.bases[2] != None:
+                            output += self.bases[2].name + " advances to third. "
+                            self.bases[3] = self.bases[2]
+                            self.bases[2] = None
+                            
+                        if self.bases[2] != None:
+                            output += self.bases[3].name + " scored. "
+                            self.bases[3] = None
+                            runs += 1 
+            elif r1 < 70:
+                # fly ball
+                output += self.bases[0].name + " flied out."
+
+                if self.outs < 2:
+                    if self.bases[3] != None and r2 < 80:
+                        output += self.bases[3].name + " scores on sac fly. "
+                        self.bases[3] = None
+                        runs += 1
+                    if self.bases[2] != None and r2 < 30:
+                        output += self.bases[2].name + " advanced to third. "
+                        self.bases[3] = self.bases[2]
+                        self.bases[2] = None
+
+                self.outs += 1
+            else:
+                # strike out
+                output += self.bases[0].name + " struck out."
+                self.outs += 1
+                
         if verbose:
             print(output)
         
@@ -243,6 +279,7 @@ class Game():
         return self.runs
 
 
+
 #2015 stats("name",       pa, hit, 2b, 3b, hr, bb)
 p1 = Player("fowler",    690, 149, 29,  8, 17, 84)
 p2 = Player("heyward",   610, 160, 33,  4, 13,  0)
@@ -259,9 +296,10 @@ batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 #batting_order = [p9, p8, p7, p6, p5, p4, p3, p2, p1]
 #batting_order = [p9, p3, p6, p1, p4, p8, p2, p7, p5]
 #batting_order = [p4, p5, p2, p1, p3, p6, p8, p7, p9]
+
+# communist DH used
 #batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
 #batting_order = [p2, p1, p3, p4, p5, dh, p6, p7, p8]
-
 game = Game(batting_order)
 
 total_runs = 0
@@ -279,28 +317,18 @@ print("avg runs: " + str(avg))
 
 problems:
 
-* scoring is too low
-* sometimes runners should advance on out
-    - sac flies
-    - ground balls
+* scoring is too low (but only about 0.5 runs per game now)
 * runners don't ever get called out when taking extra base
+* no awareness of lead runner on ground ball
+* runners don't replace each other on ground ball force outs
 
-    
 missing features:
 
-* runners should advance additional base with two outs
-* detect fly balls and ground balls, strike outs
-    - sac flies score runner from third
-    - advance on some grounders
-    - advance from 1st or second on some fly balls
-    - some ground balls cause double plays
-    - no advance on K
-
+* should runners advance additional base with two outs
+  (or at least increase aggressiveness)
 * speed factor
 * stolen bases
-
-(the current simulation only predicts about half of runs actually scored.
- it's surprising how many runs these missing features actually account for.)
+* bunts
 
 questions to answer:
 
@@ -314,14 +342,14 @@ questions to answer:
 * how much does order matter? (runs per game, wins per season)
 * how many runs equate to a "win" on average? could standings be analyzed to
   determine this?
-* should runners push to advance extra base? if so, when?
-* is stealing worth risk?
-* when is bunting worthwhile?
 * does the dh make the game 'more exciting'? (or perhaps extra runs can be
   attributed to strategical differences - more conservative base running)
 
-probably can't be included:
+situational decision making:
 
-* situational decision making (bunts, deliberate fly balls in sac situations, etc)
+* can code be reconfigured to test scenarios?
+    - should runners push to advance extra base? if so, when?
+    - when to steal
+    - sacrafice bunts... worth it?
 
 '''
