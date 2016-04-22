@@ -1,9 +1,11 @@
+import math
 import random
 import statistics
 
 # options
 trials = 162
 verbose = False
+vary_pitching = True
 
 # outcomes
 WALK = 0
@@ -26,18 +28,24 @@ class Player():
         self.triple_prob = triples / plate_appearances
         self.homer_prob = homers / plate_appearances
 
-    def make_plate_appearance(self):
+    def make_plate_appearance(self, pitch_factor):
         r = random.randint(0, 1000) / 1000
 
-        if r < self.walk_prob:
+        walk_threshold   = 0                + self.walk_prob   * pitch_factor
+        single_threshold = walk_threshold   + self.single_prob * pitch_factor
+        double_threshold = single_threshold + self.double_prob * pitch_factor
+        triple_threshold = double_threshold + self.triple_prob * pitch_factor
+        homer_threshold  = triple_threshold + self.homer_prob  * pitch_factor
+        
+        if r < walk_threshold:
             return WALK
-        elif r < self.walk_prob + self.single_prob:
+        elif r < single_threshold:
             return SINGLE
-        elif r < self.walk_prob + self.single_prob + self.double_prob:
+        elif r < double_threshold:
             return DOUBLE
-        elif r < self.walk_prob + self.single_prob + self.double_prob + self.triple_prob:
+        elif r < triple_threshold:
             return TRIPLE
-        elif r < self.walk_prob + self.single_prob + self.double_prob + self.triple_prob + self.homer_prob:
+        elif r < homer_threshold:
             return HOMER
         else:
             return OUT
@@ -52,6 +60,7 @@ class Game():
         self.bases = [None, None, None, None]
         self.outs = 0
         self.runs = 0
+        self.offset = random.randint(0,9)
         
     def clear_bases(self):
         self.bases = [None, None, None, None]
@@ -251,8 +260,16 @@ class Game():
         
         while self.outs < 3:
             self.bases[0] = self.lineup[self.batter]
-            
-            outcome = self.bases[0].make_plate_appearance()
+
+            if vary_pitching:
+                period = 1.0
+                amplitude = 0.4
+                
+                pitch_factor = 1.0 + amplitude * math.sin(period * self.offset)
+            else:
+                pitch_factor = 1.0
+                
+            outcome = self.bases[0].make_plate_appearance(pitch_factor)
 
             runs_this_inning += self.advance_runners(outcome)
                 
@@ -273,6 +290,7 @@ class Game():
                 print("begin inning " + str(i))
                 
             self.play_inning()
+            self.offset += 1
 
         if verbose:
             print("end of game. " + str(self.runs) + " runs scored.")
@@ -309,21 +327,21 @@ for i in range(trials):
     runs = game.simulate()
     runs_scored.append(runs)
 
-low = min(runs_scored)
-high = max(runs_scored)
+
 
 mean = statistics.mean(runs_scored)
-median = statistics.median(runs_scored)
-mode = statistics.mode(runs_scored)
-stdev = statistics.stdev(runs_scored)
-
 print("num games: {}".format(trials))
-print("min: {}".format(low))
-print("max: {}".format(high))
 print("mean: {}".format(mean))
-print("median: {}".format(median))
-print("mode: {}".format(mode))
-print("standard deviation: {}".format(stdev))
+
+if trials > 1:
+    low = min(runs_scored)
+    high = max(runs_scored)
+    median = statistics.median(runs_scored)
+    stdev = statistics.stdev(runs_scored)
+    print("min: {}".format(low))
+    print("max: {}".format(high))
+    print("median: {}".format(median))
+    print("standard deviation: {}".format(stdev))
 
 '''
 
