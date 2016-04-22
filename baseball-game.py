@@ -1,8 +1,11 @@
+import math
 import random
+import statistics
 
 # options
-trials = 10000
+trials = 162
 verbose = False
+vary_pitching = True
 
 
 # outcomes
@@ -26,18 +29,24 @@ class Player():
         self.triple_prob = triples / plate_appearances
         self.homer_prob = homers / plate_appearances
 
-    def make_plate_appearance(self):
+    def make_plate_appearance(self, pitch_factor):
         r = random.randint(0, 1000) / 1000
 
-        if r < self.walk_prob:
+        walk_threshold   = 0                + self.walk_prob   * pitch_factor
+        single_threshold = walk_threshold   + self.single_prob * pitch_factor
+        double_threshold = single_threshold + self.double_prob * pitch_factor
+        triple_threshold = double_threshold + self.triple_prob * pitch_factor
+        homer_threshold  = triple_threshold + self.homer_prob  * pitch_factor
+        
+        if r < walk_threshold:
             return WALK
-        elif r < self.walk_prob + self.single_prob:
+        elif r < single_threshold:
             return SINGLE
-        elif r < self.walk_prob + self.single_prob + self.double_prob:
+        elif r < double_threshold:
             return DOUBLE
-        elif r < self.walk_prob + self.single_prob + self.double_prob + self.triple_prob:
+        elif r < triple_threshold:
             return TRIPLE
-        elif r < self.walk_prob + self.single_prob + self.double_prob + self.triple_prob + self.homer_prob:
+        elif r < homer_threshold:
             return HOMER
         else:
             return OUT
@@ -53,10 +62,12 @@ class Game():
         self.outs = 0
         self.runs = 0
 
-        
         self.opponent_lineup = opponent_lineup
         self.opponent_runs = 0
         self.opponent_batter = 0
+
+        self.offset = random.randint(0,9)
+
         
     def clear_bases(self):
         self.bases = [None, None, None, None]
@@ -260,8 +271,16 @@ class Game():
             
         while self.outs < 3:
             self.bases[0] = self.lineup[self.batter]
-            
-            outcome = self.bases[0].make_plate_appearance()
+
+            if vary_pitching:
+                period = 1.0
+                amplitude = 0.4
+                
+                pitch_factor = 1.0 + amplitude * math.sin(period * self.offset)
+            else:
+                pitch_factor = 1.0
+                
+            outcome = self.bases[0].make_plate_appearance(pitch_factor)
 
             runs_this_half_inning += self.advance_runners(outcome)
                 
@@ -280,11 +299,20 @@ class Game():
 
         if verbose:
             print("Opponent:")
-            
+
+        
         while self.outs < 3:
             self.bases[0] = self.opponent_lineup[self.opponent_batter]
+
+            if vary_pitching:
+                period = 1.0
+                amplitude = 0.4
+                
+                pitch_factor = 1.0 + amplitude * math.sin(period * self.offset)
+            else:
+                pitch_factor = 1.0
             
-            outcome = self.bases[0].make_plate_appearance()
+            outcome = self.bases[0].make_plate_appearance(pitch_factor)
 
             runs_this_half_inning += self.advance_runners(outcome)
                 
@@ -306,6 +334,7 @@ class Game():
                 print("begin inning " + str(i))
                 
             self.play_inning()
+            self.offset += 1
 
         while self.runs == self.opponent_runs:
             self.play_inning()
@@ -371,21 +400,47 @@ total_runs = 0
 winners = []
 runs = []
 opp_runs = []
+runs_scored = []
 
 for i in range(trials):
     results = game.simulate()
-    runs.append(results[0])
+    runs_scored.append(results[0])
     opp_runs.append(results[1])
     winners.append(results[2])
- 
-avg = sum(runs) / trials
-opp_avg = sum(opp_runs) / trials
 
-print("num games: " + str(trials))
-print("avg cubs runs: " + str(avg))
-print("avg opp runs: " + str(opp_avg))
+
+cubs_mean = statistics.mean(runs_scored)
+opp_mean = statistics.mean(opp_runs)
+
+print("num games: {}".format(trials))
+print("cubs mean: {}".format(cubs_mean))
+print("opp mean: {}".format(opp_mean))
+
+if trials > 1:
+    cubs_low = min(runs_scored)
+    cubs_high = max(runs_scored)
+    cubs_median = statistics.median(runs_scored)
+    cubs_stdev = statistics.stdev(runs_scored)
+    opp_low = min(opp_runs)
+    opp_high = max(opp_runs)
+    opp_median = statistics.median(opp_runs)
+    opp_stdev = statistics.stdev(opp_runs)
+    print("Cubs stats:")
+    print("min: {}".format(cubs_low))
+    print("max: {}".format(cubs_high))
+    print("median: {}".format(cubs_median))
+    print("standard deviation: {}".format(cubs_stdev))
+    print()
+    print("Opponent stats:")
+    print("min: {}".format(opp_low))
+    print("max: {}".format(opp_high))
+    print("median: {}".format(opp_median))
+    print("standard deviation: {}".format(opp_stdev))
+    
+print()
 print("the cubs won " + str(winners.count("cubs")) + " times. " + str(100 * winners.count("cubs")/trials) + "%")
 print("their opponent won " + str(winners.count("opponent")) + " times. " + str(100 * winners.count("opponent")/trials) + "%")
+
 '''
 
 problems:
