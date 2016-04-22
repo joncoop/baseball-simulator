@@ -4,6 +4,7 @@ import random
 trials = 10000
 verbose = False
 
+
 # outcomes
 WALK = 0
 SINGLE = 1
@@ -279,7 +280,7 @@ class Game():
         return self.runs
 
 
-
+#cubs stats
 #2015 stats("name",       pa, hit, 2b, 3b, hr, bb)
 p1 = Player("fowler",    690, 149, 29,  8, 17, 84)
 p2 = Player("heyward",   610, 160, 33,  4, 13,  0)
@@ -303,6 +304,22 @@ batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 game = Game(batting_order)
 
 total_runs = 0
+
+#opponent stats
+#Brewers
+#2015 stats("name",       pa, hit, 2b, 3b, hr, bb)
+p1 = Player("santana",    145,  28,  5,  0,  6, 18)
+p2 = Player("gennett",    391,  99, 18,  4,  6, 12)
+p3 = Player("braun",      568, 144, 27,  3, 25, 54)
+p4 = Player("lucroy",     415,  98, 20,  3,  7, 36)
+p5 = Player("carter",     129,  78, 17,  0, 24, 57)
+p6 = Player("hill",       353,  72, 18,  0,  6, 31)
+p7 = Player("gennett",    391,  99,  3,  0,  3,  9)
+p8 = Player("flores",      33,   7,  1,  0,  0,  0)
+p9 = Player("villar",     128,  33,  7,  1,  2, 10)
+            
+batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
+
 
 for i in range(trials):
     total_runs += game.simulate()
