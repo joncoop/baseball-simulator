@@ -52,14 +52,19 @@ class Player():
         
 class Game():
 
-    def __init__(self, lineup):
+    def __init__(self, lineup, opponent_lineup):
 
         self.lineup = lineup
         self.batter = 0
-
+        
         self.bases = [None, None, None, None]
         self.outs = 0
         self.runs = 0
+
+        self.opponent_lineup = opponent_lineup
+        self.opponent_runs = 0
+        self.opponent_batter = 0
+
         self.offset = random.randint(0,9)
         
     def clear_bases(self):
@@ -255,9 +260,13 @@ class Game():
         return runs
     
     def play_inning(self):
+        #top half
         self.outs = 0
-        runs_this_inning = 0
-        
+        runs_this_half_inning = 0
+
+        if verbose:
+            print("Cubs:")
+            
         while self.outs < 3:
             self.bases[0] = self.lineup[self.batter]
 
@@ -271,20 +280,53 @@ class Game():
                 
             outcome = self.bases[0].make_plate_appearance(pitch_factor)
 
-            runs_this_inning += self.advance_runners(outcome)
+            runs_this_half_inning += self.advance_runners(outcome)
                 
             self.batter = (self.batter + 1) % 9
 
         if verbose:
-            print("end of inning. " + str(runs_this_inning) + " runs scored.")
+            print("end of half inning. " + str(runs_this_half_inning) + " runs scored.")
             print()
             
-        self.runs += runs_this_inning
+        self.runs += runs_this_half_inning
         self.clear_bases()
+
+        #bottom half
+        self.outs = 0
+        runs_this_half_inning = 0
+
+        if verbose:
+            print("Opponent:")
+
+        
+        while self.outs < 3:
+            self.bases[0] = self.opponent_lineup[self.opponent_batter]
+
+            if vary_pitching:
+                period = 1.0
+                amplitude = 0.4
+                
+                pitch_factor = 1.0 + amplitude * math.sin(period * self.offset)
+            else:
+                pitch_factor = 1.0
+            
+            outcome = self.bases[0].make_plate_appearance(pitch_factor)
+
+            runs_this_half_inning += self.advance_runners(outcome)
+                
+            self.opponent_batter = (self.opponent_batter + 1) % 9
+
+        self.opponent_runs += runs_this_half_inning
+        self.clear_bases()
+        
+        if verbose:
+            print("end of inning. " + str(runs_this_half_inning) + " runs scored.  (" + str(self.runs) + "," + str(self.opponent_runs) + ")")
+            print()
         
     def simulate(self):
         self.runs = 0
-        
+        self.opponent_runs = 0
+
         for i in range(1, 10):
             if verbose:
                 print("begin inning " + str(i))
@@ -292,13 +334,24 @@ class Game():
             self.play_inning()
             self.offset += 1
 
+        while self.runs == self.opponent_runs:
+            self.play_inning()
+            
         if verbose:
-            print("end of game. " + str(self.runs) + " runs scored.")
+            print("end of game. The cubs scored " + str(self.runs) + " runs.")
+            print("Their opponent scored " + str(self.opponent_runs) + " runs.")
 
-        return self.runs
+        if self.runs > self.opponent_runs:
+            winner = "cubs"
+        elif self.opponent_runs > self.runs:
+            winner = "opponent"
+        else:
+            winner = "tie"
+        
+        return self.runs, self.opponent_runs, winner
 
 
-
+#cubs stats
 #2015 stats("name",       pa, hit, 2b, 3b, hr, bb)
 p1 = Player("fowler",    690, 149, 29,  8, 17, 84)
 p2 = Player("heyward",   610, 160, 33,  4, 13,  0)
@@ -319,29 +372,72 @@ batting_order = [p1, p2, p3, p4, p5, p6, p7, p8, p9]
 # communist DH used
 #batting_order = [p1, p2, p3, p4, p5, dh, p6, p7, p8]
 #batting_order = [p2, p1, p3, p4, p5, dh, p6, p7, p8]
-game = Game(batting_order)
 
+#opponent stats
+#Brewers
+#2015 stats("name",       pa, hit, 2b, 3b, hr, bb)
+brewers_p1 = Player("santana",    145,  28,  5,  0,  6, 18)
+brewers_p2 = Player("gennett",    391,  99, 18,  4,  6, 12)
+brewers_p3 = Player("braun",      568, 144, 27,  3, 25, 54)
+brewers_p4 = Player("lucroy",     415,  98, 20,  3,  7, 36)
+brewers_p5 = Player("carter",     129,  78, 17,  0, 24, 57)
+brewers_p6 = Player("hill",       353,  72, 18,  0,  6, 31)
+brewers_p7 = Player("gennett",    391,  99,  3,  0,  3,  9)
+brewers_p8 = Player("flores",      33,   7,  1,  0,  0,  0)
+brewers_p9 = Player("villar",     128,  33,  7,  1,  2, 10)
+            
+brewers_batting_order = [brewers_p1, brewers_p2, brewers_p3, brewers_p4, brewers_p5, brewers_p6, brewers_p7, brewers_p8, brewers_p9]
+
+opponent = brewers_batting_order
+
+
+game = Game(batting_order,brewers_batting_order)
+
+total_runs = 0
+
+winners = []
+runs = []
+opp_runs = []
 runs_scored = []
 
 for i in range(trials):
-    runs = game.simulate()
-    runs_scored.append(runs)
+    results = game.simulate()
+    runs_scored.append(results[0])
+    opp_runs.append(results[1])
+    winners.append(results[2])
 
 
+cubs_mean = statistics.mean(runs_scored)
+opp_mean = statistics.mean(opp_runs)
 
-mean = statistics.mean(runs_scored)
 print("num games: {}".format(trials))
-print("mean: {}".format(mean))
+print("cubs mean: {}".format(cubs_mean))
+print("opp mean: {}".format(opp_mean))
 
 if trials > 1:
-    low = min(runs_scored)
-    high = max(runs_scored)
-    median = statistics.median(runs_scored)
-    stdev = statistics.stdev(runs_scored)
-    print("min: {}".format(low))
-    print("max: {}".format(high))
-    print("median: {}".format(median))
-    print("standard deviation: {}".format(stdev))
+    cubs_low = min(runs_scored)
+    cubs_high = max(runs_scored)
+    cubs_median = statistics.median(runs_scored)
+    cubs_stdev = statistics.stdev(runs_scored)
+    opp_low = min(opp_runs)
+    opp_high = max(opp_runs)
+    opp_median = statistics.median(opp_runs)
+    opp_stdev = statistics.stdev(opp_runs)
+    print("Cubs stats:")
+    print("min: {}".format(cubs_low))
+    print("max: {}".format(cubs_high))
+    print("median: {}".format(cubs_median))
+    print("standard deviation: {}".format(cubs_stdev))
+    print()
+    print("Opponent stats:")
+    print("min: {}".format(opp_low))
+    print("max: {}".format(opp_high))
+    print("median: {}".format(opp_median))
+    print("standard deviation: {}".format(opp_stdev))
+    
+print()
+print("the cubs won " + str(winners.count("cubs")) + " times. " + str(100 * winners.count("cubs")/trials) + "%")
+print("their opponent won " + str(winners.count("opponent")) + " times. " + str(100 * winners.count("opponent")/trials) + "%")
 
 '''
 
